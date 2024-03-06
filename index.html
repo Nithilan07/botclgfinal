@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Question Answering Bot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-container {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column-reverse; /* Reverse the order of messages */
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 70%;
+            align-self: flex-end; /* Align user messages to the right */
+        }
+        .user-message {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .bot-message {
+            background-color: #6c757d;
+            color: #fff;
+            align-self: flex-start; /* Align bot messages to the left */
+        }
+        input[type="file"], input[type="text"], button {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: calc(100% - 22px); /* Adjust for padding */
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="question-form" method="post" enctype="multipart/form-data">
+            <input type="file" id="pdf" name="pdf" accept=".pdf" required>
+            <input type="text" id="question" name="question" placeholder="Ask a question..." required>
+            <button type="submit">Ask</button>
+        </form>
+        <div class="chat-container" id="chat-container">
+            <!-- Chat messages will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Function to add user message to chat container
+        function addUserMessage(message) {
+            var chatContainer = document.getElementById('chat-container');
+            var userMessageElement = document.createElement('div');
+            userMessageElement.textContent = message;
+            userMessageElement.classList.add('message', 'user-message');
+            chatContainer.appendChild(userMessageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
+        }
+
+        // Function to add bot message to chat container
+        function addBotMessage(message) {
+            var chatContainer = document.getElementById('chat-container');
+            var botMessageElement = document.createElement('div');
+            botMessageElement.textContent = message;
+            botMessageElement.classList.add('message', 'bot-message');
+            chatContainer.appendChild(botMessageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
+        }
+
+        // Function to handle form submission
+        document.getElementById('question-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                addUserMessage("You: " + formData.get('question'));
+                addBotMessage("Bot: " + data.answer);
+                document.getElementById('question').value = ''; // Clear the input field
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
